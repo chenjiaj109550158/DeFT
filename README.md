@@ -85,7 +85,8 @@ The DeFT attention kernels are implemented in **Triton** and can be found in the
   - Used by DeFT-Node, DeFT-Node-Chunk, and DeFT-Flatten variants
 
 - **[`/DeFT/deft/layers/attention/token_attention.py`](./DeFT/deft/layers/attention/token_attention.py)**: Token-level attention kernels for sequential decoding with paged memory
-  - `token_attention_kernel`: Optimized kernel for Radix Attention baseline
+  - `_fwd_kernel_stage1` and `_fwd_kernel_stage2`: Two-stage kernels for Radix Attention baseline
+  - `token_attention_fwd`: High-level wrapper function
 
 ### Unpaged Memory Implementations
 - **[`/DeFT/deft/layers/attention/unpaged/tree_attention.py`](./DeFT/deft/layers/attention/unpaged/tree_attention.py)**: DeFT tree attention kernels without paged memory
