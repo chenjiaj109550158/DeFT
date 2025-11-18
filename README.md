@@ -43,6 +43,7 @@ Large language models (LLMs) are increasingly employed for complex tasks that pr
   - [Folder Structure](#folder-structure)
     - [`/DeFT`](#deft)
     - [`/dataset/generation`](#datasetgeneration)
+  - [Kernel Implementation](#kernel-implementation)
   - [Usage](#usage)
       - [Environment Setup](#environment-setup)
       - [Run demos for quick start](#run-demos-for-quick-start)
@@ -71,6 +72,33 @@ This folder contains the implementation of the DeFT codebase along with experime
 This directory houses tree templates for **Reasoning** and **Speculative Decoding** tasks. For additional details about the templates and usage, refer to:
 
 [`/dataset/generation/TreeTemplate_readme.md`](./dataset/generation/TreeTemplate_readme.md)
+
+## Kernel Implementation
+
+The DeFT attention kernels are implemented in **Triton** and can be found in the following locations:
+
+### Core DeFT Attention Kernels (Paged Memory)
+- **[`/DeFT/deft/layers/attention/tree_attention.py`](./DeFT/deft/layers/attention/tree_attention.py)**: Main DeFT tree attention kernels with paged memory management
+  - `DeFT_splitBynode_Triton_stage1_kernel`: Stage 1 kernel for DeFT-Node attention (KV-Guided Grouping)
+  - `DeFT_splitBynode_Triton_stage2_*_kernel`: Stage 2 kernels for combining partial results
+  - `tree_attention_subtree_fwd_kernel`: Kernel for DeFT-Flatten attention (Flattened Tree KV Splitting)
+  - Used by DeFT-Node, DeFT-Node-Chunk, and DeFT-Flatten variants
+
+- **[`/DeFT/deft/layers/attention/token_attention.py`](./DeFT/deft/layers/attention/token_attention.py)**: Token-level attention kernels for sequential decoding with paged memory
+  - `token_attention_kernel`: Optimized kernel for Radix Attention baseline
+
+### Unpaged Memory Implementations
+- **[`/DeFT/deft/layers/attention/unpaged/tree_attention.py`](./DeFT/deft/layers/attention/unpaged/tree_attention.py)**: DeFT tree attention kernels without paged memory
+  - Used by Tree Attention Medusa baseline
+  
+- **[`/DeFT/deft/layers/attention/unpaged/token_attention.py`](./DeFT/deft/layers/attention/unpaged/token_attention.py)**: Token attention without paged memory
+  - Used by Flash-Decoding baseline
+
+### Additional Attention Components
+- **[`/DeFT/deft/layers/attention/context_flashattention_nopad.py`](./DeFT/deft/layers/attention/context_flashattention_nopad.py)**: Context attention for prefill phase
+- **[`/DeFT/deft/layers/attention/deft_attention.py`](./DeFT/deft/layers/attention/deft_attention.py)**: High-level DeFT attention module that orchestrates kernel calls
+
+For an alternative DeFT Triton kernel implementation, see the [FastTree project](https://github.com/PanZaifeng/FastTree-Artifact/blob/main/kernel_bench/DeFT.py).
 
 ## Usage
 
